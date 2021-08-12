@@ -35,11 +35,11 @@ const Container = styled.div`
     justify-content: ${p => p.isMe ? "flex-end" : "flex-start"};
 
     .message {
-        max-width: 300px;
-        background-color: #ccc;
+        max-width: 400px;
+        background-color: #4e4a4a;
         padding: 10px;
         border-radius: 8px;
-        color: #000;
+        color: #fff;
         margin: 0 5px;
     }
 
