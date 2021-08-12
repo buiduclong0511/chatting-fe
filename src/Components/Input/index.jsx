@@ -6,6 +6,8 @@ export const Input = ({
     id = "",
     value = "",
     placeholder = "",
+    onFocus = () => {},
+    onBlur = () => {},
     onChange = () => {},
 }) => {
     return (
@@ -13,7 +15,16 @@ export const Input = ({
             <label htmlFor={id} className="inputLabel">
                 {children}
             </label>
-            <input value={value} type="text" id={id} className="input" placeholder={placeholder} onChange={onChange} />
+            <input 
+                value={value} 
+                type="text" 
+                id={id} 
+                className="input" 
+                placeholder={placeholder} 
+                onChange={onChange}
+                onFocus={onFocus}
+                onBlur={onBlur}
+            />
         </Container>
     );
 };

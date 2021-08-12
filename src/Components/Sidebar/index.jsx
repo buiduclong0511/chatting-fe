@@ -1,16 +1,28 @@
 import styled from "styled-components";
 import { Conversation } from "../Conversation";
 import { Input } from "../Input";
+import { SearchResult } from "../SearchResult";
 
-export const Sidebar = () => {
+export const Sidebar = ({
+    onShowSearchResult = () => {},
+    onHiddenSearchResult = () => {},
+    isShowSearchResult = false
+}) => {
     return (
         <Container>
             <div className="searchUser">
                 <Input
                     placeholder="Nhập id, username hoặc địa chỉ email"
+                    onFocus={onShowSearchResult}
+                    onBlur={onHiddenSearchResult}
                 >
                     <ion-icon name="search-outline"></ion-icon>
                 </Input>
+                {isShowSearchResult ? (
+                    <div className="searchResult">
+                        <SearchResult />
+                    </div>
+                ) : <></>}
             </div>
 
             <div className="listFriends">
@@ -49,6 +61,14 @@ const Container = styled.div`
         border-bottom: 1px solid #ccc;
         height: 80px;
         padding: 10px;
+        position: relative;
+
+        .searchResult {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+        }
     }
 
     .listFriends {

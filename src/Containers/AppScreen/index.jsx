@@ -4,11 +4,24 @@ import { Message, Sidebar, Welcome } from "../../Components";
 
 export const AppScreen = () => {
     const [firstTimeAccess, setFirstTimeAccess] = useState(false);
+    const [isShowSearchResult, setIsShowSearchResult] = useState(false);
+
+    const handleShowSearchResult = () => {
+        setIsShowSearchResult(true);
+    };
+    
+    const handleHiddenSearchResult = () => {
+        setIsShowSearchResult(false);
+    };
 
     return (
         <Container>
             <div className="sidebar">
-                <Sidebar />
+                <Sidebar 
+                    onShowSearchResult={handleShowSearchResult}
+                    onHiddenSearchResult={handleHiddenSearchResult}
+                    isShowSearchResult={isShowSearchResult}
+                />
             </div>
             <div className="main">
                 {firstTimeAccess ? (

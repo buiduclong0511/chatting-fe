@@ -4,3 +4,5 @@ export * from "./Sidebar";
 export * from "./Conversation";
 export * from "./Welcome";
 export * from "./Message";
+export * from "./SearchResult";
+export * from "./SearchResultItem";
