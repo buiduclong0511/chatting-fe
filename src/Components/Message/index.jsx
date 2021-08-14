@@ -30,6 +30,7 @@ export const Message = ({
 const Container = styled.div`
     display: flex;
     justify-content: ${p => p.isMe ? "flex-end" : "flex-start"};
+    margin: 20px 0;
 
     .message {
         max-width: 400px;

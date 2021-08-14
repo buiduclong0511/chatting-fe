@@ -18,8 +18,9 @@ export const AppScreen = () => {
     const [conversations, setConversations] = useState([]);
     const [currentChatInfo, setCurrentChatInfo] = useState(null);
     const [messages, setMessages] = useState([]);
+    const [messageContent, setMessageContent] = useState("");
 
-    console.log(messages);
+    // console.log(messages);
 
     const dispatch = useDispatch();
     const userInfo = useSelector(authSelector).userInfo;
@@ -52,12 +53,12 @@ export const AppScreen = () => {
     // effect
     useEffect(() => {
         fetchConversations();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
         fetchMessages();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentChatInfo]);
     // effect
 
@@ -65,7 +66,7 @@ export const AppScreen = () => {
     
     // debounce
     useDebounce(() => {
-        if (keySearch) {
+        if (keySearch.trim()) {
             userApi.search(keySearch)
                 .then(res => {
                     setSearchResult(res.data.users);
@@ -99,7 +100,7 @@ export const AppScreen = () => {
     };
 
     const handleChangeKeySearch = (event) => {
-        setKeySearch(event.target.value.trim());
+        setKeySearch(event.target.value);
     };
 
     const handleCreateConversation = (receiverId) => {
@@ -107,12 +108,33 @@ export const AppScreen = () => {
             senderId: userInfo._id,
             receiverId
         })
-        .then(res => console.log(res));
+        .then(res => {
+            fetchConversations();
+        });
     };
 
     const handleClickConversation = (conversation) => {
         setFirstTimeAccess(false);
         setCurrentChatInfo(conversation);
+    };
+
+    const handleChangeMessageContent = (event) => {
+        setMessageContent(event.target.value);
+    };
+
+    const handleSendMessage = async () => {
+        try {
+            if (messageContent.trim()) {
+                const body = {
+                    conversationId: currentChatInfo._id,
+                    senderId: userInfo._id,
+                    text: messageContent
+                }
+                messageApi.sendMessage(body);
+            }
+        } catch (err) {
+            console.log(err);
+        }
     };
     // handle functions
 
@@ -143,7 +165,7 @@ export const AppScreen = () => {
                         </div>
                         <div className="listMessage">
                             {messages.map(message => {
-                                console.log(message);
+                                // console.log(message);
                                 const isMe = userInfo._id === message.sender._id;
                                 return (
                                     <Message
@@ -157,10 +179,10 @@ export const AppScreen = () => {
                         </div>
                         <div className="inputMessage">
                             <div className="input">
-                                <input type="text" />
+                                <input type="text" value={messageContent} onChange={handleChangeMessageContent} />
                             </div>
                             <div className="btn">
-                                <button className="sendBtn">
+                                <button className="sendBtn" onClick={handleSendMessage}>
                                     <ion-icon name="send-outline"></ion-icon>
                                 </button>
                             </div>
@@ -196,7 +218,6 @@ const Container = styled.div`
             flex: 1;
             overflow-y: scroll;
             padding-right: 10px;
-            padding-top: 20px;
 
             /* width */
             &::-webkit-scrollbar {
