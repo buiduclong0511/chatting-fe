@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
-import { userApi } from "../../Api";
 
 import { Button, Input } from "../../Components";
 import { login, register } from "../../Redux/slices/auth";
