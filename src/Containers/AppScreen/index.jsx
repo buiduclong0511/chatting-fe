@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { conversationApi, userApi } from "../../Api";
+import { conversationApi, messageApi, userApi } from "../../Api";
 
 import { Message, ProfileModal, Sidebar, Welcome } from "../../Components";
 import { useDebounce } from "../../Hooks";
@@ -15,9 +15,55 @@ export const AppScreen = () => {
     const [searchResult, setSearchResult] = useState([]);
     const [isShowProfile, setIsShowProfile] = useState(false);
     const [keySearch, setKeySearch] = useState("");
+    const [conversations, setConversations] = useState([]);
+    const [currentChatInfo, setCurrentChatInfo] = useState(null);
+    const [messages, setMessages] = useState([]);
+
+    console.log(messages);
+
     const dispatch = useDispatch();
     const userInfo = useSelector(authSelector).userInfo;
 
+
+    // effect functions
+    const fetchConversations = async () => {
+        try {
+            const res = await conversationApi.getConversationsBySenderId(userInfo._id);
+            setConversations(res.data.conversations);
+        } catch (err) {
+            console.log(err);
+        }
+    };
+    
+    const fetchMessages = async () => {
+        try {
+            if (currentChatInfo) {
+                const res = await messageApi.getMessagesByConversationId(currentChatInfo._id);
+                setMessages(res.data.messages);
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    };
+    // effect functions
+
+
+
+    // effect
+    useEffect(() => {
+        fetchConversations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        fetchMessages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentChatInfo]);
+    // effect
+
+
+    
+    // debounce
     useDebounce(() => {
         if (keySearch) {
             userApi.search(keySearch)
@@ -30,7 +76,11 @@ export const AppScreen = () => {
                 });
         }
     }, 800, [keySearch]);
+    //debounce
 
+
+
+    // handle functions
     const handleShowSearchResult = () => {
         setIsShowSearchResult(true);
     };
@@ -60,10 +110,15 @@ export const AppScreen = () => {
         .then(res => console.log(res));
     };
 
+    const handleClickConversation = (conversation) => {
+        setFirstTimeAccess(false);
+        setCurrentChatInfo(conversation);
+    };
+    // handle functions
+
     return (
         <Container>
             {isShowProfile && <ProfileModal onClose={handleToggleShowProfile} onLogout={handleLogout} />}
-            {/* <ProfileModal /> */}
             <div className="sidebar">
                 <Sidebar 
                     onShowSearchResult={handleShowSearchResult}
@@ -74,6 +129,8 @@ export const AppScreen = () => {
                     onChangeKeySearch={handleChangeKeySearch}
                     searchResult={searchResult}
                     onCreateConversation={handleCreateConversation}
+                    conversations={conversations}
+                    onClickConversation={handleClickConversation}
                 />
             </div>
             <div className="main">
@@ -81,38 +138,22 @@ export const AppScreen = () => {
                     <Welcome username={userInfo.username} id={userInfo._id} />
                 ) : (
                     <>
+                        <div className="header">
+                            {currentChatInfo.members.find(member => member._id !== userInfo._id).username}
+                        </div>
                         <div className="listMessage">
-                            <Message
-                                username="username"
-                                message="message message message message message message message message message message message message "
-                            />
-                            <Message 
-                                isMe
-                                username="username"
-                                message="message message message message message message message message message message message message "
-                            />
-                            <Message
-                                username="username"
-                                message="message"
-                            />
-                            <Message 
-                                isMe
-                                username="username"
-                                message="message"
-                            />
-                            <Message
-                                username="username"
-                                message="message"
-                            />
-                            <Message 
-                                isMe
-                                username="username"
-                                message="message"
-                            />
-                            <Message
-                                username="username"
-                                message="message"
-                            />
+                            {messages.map(message => {
+                                console.log(message);
+                                const isMe = userInfo._id === message.sender._id;
+                                return (
+                                    <Message
+                                        key={message._id}
+                                        isMe={isMe}
+                                        username={message.sender.username}
+                                        message={message.text}
+                                    />
+                                );
+                            })}
                         </div>
                         <div className="inputMessage">
                             <div className="input">
@@ -145,9 +186,17 @@ const Container = styled.div`
         display: flex;
         flex-direction: column;
 
+        .header {
+            padding: 20px;
+            border-bottom: 1px solid #000;
+            box-shadow: 0 0 5px #000;
+        }
+
         .listMessage {
             flex: 1;
             overflow-y: scroll;
+            padding-right: 10px;
+            padding-top: 20px;
 
             /* width */
             &::-webkit-scrollbar {

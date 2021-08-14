@@ -2,10 +2,11 @@ import styled from "styled-components";
 
 export const Conversation = ({
     username = "",
-    newestMessage = "Bắt đầu cuộc trò chuyện"
+    newestMessage = "Bắt đầu cuộc trò chuyện",
+    onClick = () => {}
 }) => {
     return (
-        <Container>
+        <Container onClick={onClick}>
             <p className="username">
                 {username}
             </p>

@@ -3,6 +3,7 @@ const queryString = require("query-string");
 
 export * from "./user";
 export * from "./conversation";
+export * from "./message";
 
 const axiosClient = axios.create({
     baseURL: "http://localhost:3001",

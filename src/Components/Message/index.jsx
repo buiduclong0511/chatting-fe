@@ -12,9 +12,6 @@ export const Message = ({
                     <div className="message">
                         {message}
                     </div>
-                    <div className="username">
-                        {username}
-                    </div>
                 </>
             ) : (
                 <>

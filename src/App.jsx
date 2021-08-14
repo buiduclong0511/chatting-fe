@@ -8,8 +8,6 @@ import { authSelector } from "./Redux/slices/auth";
 
 export const App = () => {
     const userInfo = useSelector(authSelector).userInfo;
-    console.log(userInfo);
-
     return (
         <Container className="App">
             {!userInfo ? (

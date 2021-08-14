@@ -1,4 +1,7 @@
+import { useSelector } from "react-redux";
 import styled from "styled-components";
+
+import { authSelector } from "../../Redux/slices";
 import { Conversation } from "../Conversation";
 import { Input } from "../Input";
 import { SearchResult } from "../SearchResult";
@@ -8,11 +11,14 @@ export const Sidebar = ({
     keySearch = "",
     searchResult = [],
     onCreateConversation,
+    conversations = [],
     onShowSearchResult = () => {},
     onHiddenSearchResult = () => {},
     onToggleShowProfile = () => {},
-    onChangeKeySearch = () => {}
+    onChangeKeySearch = () => {},
+    onClickConversation = () => {}
 }) => {
+    const userInfo = useSelector(authSelector).userInfo;
     return (
         <Container>
             <div className="searchUser">
@@ -38,26 +44,18 @@ export const Sidebar = ({
             </div>
 
             <div className="listFriends">
-                <Conversation 
-                    username="username"
-                    newestMessage="newest message"
-                />
-                <Conversation 
-                    username="username"
-                    newestMessage="newest message"
-                />
-                <Conversation 
-                    username="username"
-                    newestMessage="newest message"
-                />
-                <Conversation 
-                    username="username"
-                    newestMessage="newest message"
-                />
-                <Conversation 
-                    username="username"
-                    newestMessage="newest message"
-                />
+                {conversations.map(conversation => {
+                    const username = conversation.members.find(user => user._id !== userInfo._id).username;
+                    const onClick = () => onClickConversation(conversation);
+                    return (
+                        <Conversation 
+                            key={conversation._id}
+                            username={username}
+                            newestMessage="newest message"
+                            onClick={onClick}
+                        />
+                    );
+                })}
             </div>
         </Container>
     );
