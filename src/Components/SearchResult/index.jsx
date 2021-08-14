@@ -1,15 +1,20 @@
 import styled from "styled-components";
 import { SearchResultItem } from "../SearchResultItem";
 
-export const SearchResult = () => {
+export const SearchResult = ({
+    searchResult = [],
+    onCreateConversation = () => {}
+}) => {
     return (
         <Container>
-            <SearchResultItem />
-            <SearchResultItem />
-            <SearchResultItem />
-            <SearchResultItem />
-            <SearchResultItem />
-            <SearchResultItem />
+            {searchResult.length ? searchResult.map(user => {
+                const onclick = () => onCreateConversation(user._id);
+                return (
+                    <SearchResultItem key={user._id} data={user} onclick={onclick} />
+                );
+            }) : (
+                <p>no user</p>
+            )}
         </Container>
     );
 };

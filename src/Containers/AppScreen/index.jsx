@@ -1,31 +1,84 @@
+import { useEffect } from "react";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { Message, Sidebar, Welcome } from "../../Components";
+import { conversationApi, userApi } from "../../Api";
+
+import { Message, ProfileModal, Sidebar, Welcome } from "../../Components";
+import { useDebounce } from "../../Hooks";
+import { authSelector, logout } from "../../Redux/slices/auth";
+import { sleep } from "../../Util";
 
 export const AppScreen = () => {
-    const [firstTimeAccess, setFirstTimeAccess] = useState(false);
+    const [firstTimeAccess, setFirstTimeAccess] = useState(true);
     const [isShowSearchResult, setIsShowSearchResult] = useState(false);
+    const [searchResult, setSearchResult] = useState([]);
+    const [isShowProfile, setIsShowProfile] = useState(false);
+    const [keySearch, setKeySearch] = useState("");
+    const dispatch = useDispatch();
+    const userInfo = useSelector(authSelector).userInfo;
+
+    useDebounce(() => {
+        if (keySearch) {
+            userApi.search(keySearch)
+                .then(res => {
+                    setSearchResult(res.data.users);
+                })
+                .catch(err => {
+                    console.log(err);
+                    setSearchResult([]);
+                });
+        }
+    }, 800, [keySearch]);
 
     const handleShowSearchResult = () => {
         setIsShowSearchResult(true);
     };
     
-    const handleHiddenSearchResult = () => {
+    const handleHiddenSearchResult = async () => {
+        await sleep(200);
         setIsShowSearchResult(false);
+    };
+
+    const handleToggleShowProfile = () => {
+        setIsShowProfile(!isShowProfile);
+    };
+
+    const handleLogout = () => {
+        dispatch(logout());
+    };
+
+    const handleChangeKeySearch = (event) => {
+        setKeySearch(event.target.value.trim());
+    };
+
+    const handleCreateConversation = (receiverId) => {
+        conversationApi.createNewConversation({
+            senderId: userInfo._id,
+            receiverId
+        })
+        .then(res => console.log(res));
     };
 
     return (
         <Container>
+            {isShowProfile && <ProfileModal onClose={handleToggleShowProfile} onLogout={handleLogout} />}
+            {/* <ProfileModal /> */}
             <div className="sidebar">
                 <Sidebar 
                     onShowSearchResult={handleShowSearchResult}
                     onHiddenSearchResult={handleHiddenSearchResult}
                     isShowSearchResult={isShowSearchResult}
+                    onToggleShowProfile={handleToggleShowProfile}
+                    keySearch={keySearch}
+                    onChangeKeySearch={handleChangeKeySearch}
+                    searchResult={searchResult}
+                    onCreateConversation={handleCreateConversation}
                 />
             </div>
             <div className="main">
                 {firstTimeAccess ? (
-                    <Welcome username="Bùi Đức Long" />
+                    <Welcome username={userInfo.username} id={userInfo._id} />
                 ) : (
                     <>
                         <div className="listMessage">

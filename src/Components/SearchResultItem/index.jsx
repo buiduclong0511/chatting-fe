@@ -1,10 +1,14 @@
 import styled from "styled-components";
 
-export const SearchResultItem = () => {
+export const SearchResultItem = ({
+    data = {},
+    onclick = () => {}
+}) => {
     return (
-        <Container>
-            <div className="username">username</div>
-            <p className="userId">ID: skdfhksfksdjfgk</p>
+        <Container onClick={onclick}>
+            <div className="username">{data.username}</div>
+            <p className="userId">ID: {data._id}</p>
+            <p className="userId">Email: {data.email}</p>
         </Container>
     );
 };
@@ -16,9 +20,10 @@ const Container = styled.div`
 
     .username {
         padding: 5px 0;
+        font-weight: 700;
     }
 
     .userId {
-        font-size: 14px;
+        font-size: 13px;
     }
 `;

@@ -4,25 +4,37 @@ import { Input } from "../Input";
 import { SearchResult } from "../SearchResult";
 
 export const Sidebar = ({
+    isShowSearchResult = false,
+    keySearch = "",
+    searchResult = [],
+    onCreateConversation,
     onShowSearchResult = () => {},
     onHiddenSearchResult = () => {},
-    isShowSearchResult = false
+    onToggleShowProfile = () => {},
+    onChangeKeySearch = () => {}
 }) => {
     return (
         <Container>
             <div className="searchUser">
-                <Input
-                    placeholder="Nhập id, username hoặc địa chỉ email"
-                    onFocus={onShowSearchResult}
-                    onBlur={onHiddenSearchResult}
-                >
-                    <ion-icon name="search-outline"></ion-icon>
-                </Input>
-                {isShowSearchResult ? (
-                    <div className="searchResult">
-                        <SearchResult />
-                    </div>
-                ) : <></>}
+                <div className="userInfo" onClick={onToggleShowProfile}>
+                    <ion-icon name="person-circle"></ion-icon>
+                </div>
+                <div className="searchBox">
+                    <Input
+                        placeholder="Nhập id, username hoặc email"
+                        onFocus={onShowSearchResult}
+                        onBlur={onHiddenSearchResult}
+                        value={keySearch}
+                        onChange={onChangeKeySearch}
+                    >
+                        <ion-icon name="search-outline"></ion-icon>
+                    </Input>
+                    {isShowSearchResult ? (
+                        <div className="searchResult">
+                            <SearchResult searchResult={searchResult} onCreateConversation={onCreateConversation} />
+                        </div>
+                    ) : <></>}
+                </div>
             </div>
 
             <div className="listFriends">
@@ -62,12 +74,32 @@ const Container = styled.div`
         height: 80px;
         padding: 10px;
         position: relative;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
 
-        .searchResult {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            width: 100%;
+        .userInfo {
+            cursor: pointer;
+
+            ion-icon {
+                font-size: 30px;
+            }
+        }
+
+        .searchBox {
+            flex: 1;
+            margin-left: 10px;
+
+            div {
+                margin-top: 0;
+            }
+
+            .searchResult {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+            }
         }
     }
 

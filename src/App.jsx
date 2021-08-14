@@ -1,20 +1,33 @@
+import { useSelector } from "react-redux";
+import { ToastContainer } from "react-toastify";
 import styled from "styled-components";
+import "react-toastify/dist/ReactToastify.css";
+
 import { AppScreen, LoginScreen } from "./Containers";
+import { authSelector } from "./Redux/slices/auth";
 
 export const App = () => {
-    const userInfo = {
-        email: "buiduclong0511@gmail.com",
-        _id: "123kdhfkdshk23424",
-        socketId: "ksdhfkshdkf"
-    };
+    const userInfo = useSelector(authSelector).userInfo;
+    console.log(userInfo);
 
     return (
         <Container className="App">
-            {false ? (
+            {!userInfo ? (
                 <LoginScreen />
             ) : (
                 <AppScreen />
             )}
+
+            <ToastContainer
+                position="top-right"
+                autoClose={2000}
+                hideProgressBar={true}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                draggable
+                limit={1}
+            />
         </Container>
     );
 };

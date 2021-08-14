@@ -1,11 +1,12 @@
 import styled from "styled-components";
 
 export const Button = ({
-    title = ""
+    title = "",
+    onClick = () => {}
 }) => {
     return (
         <Container>
-            <button className="button">{title}</button>
+            <button className="button" onClick={onClick}>{title}</button>
         </Container>
     );
 };

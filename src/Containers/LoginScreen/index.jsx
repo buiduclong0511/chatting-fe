@@ -1,16 +1,22 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import styled from "styled-components";
+import { userApi } from "../../Api";
 
 import { Button, Input } from "../../Components";
+import { login, register } from "../../Redux/slices/auth";
 
 export const LoginScreen = () => {
+    const dispatch = useDispatch();
     const [registerValue, setRegisterValue] = useState({
         email: "",
-        username: ""
+        username: "",
+        password: ""
     });
 
     const [loginValue, setLoginValue] = useState({
-        email: ""
+        email: "",
+        password: ""
     });
 
     const handleChangeEmailRegister = (event) => {
@@ -28,13 +34,34 @@ export const LoginScreen = () => {
     };
 
     
+    const handleChangePasswordRegister = (event) => {
+        setRegisterValue({
+            ...registerValue,
+            password: event.target.value
+        });
+    };
+
+    
     const handleChangeEmailLogin = (event) => {
         setLoginValue({
             email: event.target.value
         });
     };
+
+    const handleChangePasswordLogin = (event) => {
+        setLoginValue({
+            ...loginValue,
+            password: event.target.value
+        });
+    };
     
-    console.log(loginValue, registerValue);
+    const handleLogin = () => {
+        dispatch(login(loginValue));
+    };
+
+    const handleRegister = () => {
+        dispatch(register(registerValue));
+    };
 
     return (
         <Container>
@@ -57,8 +84,16 @@ export const LoginScreen = () => {
                     >
                         <ion-icon name="person-outline"></ion-icon>
                     </Input>
+                    <Input
+                        id="passwordRegister"
+                        value={registerValue.password}
+                        placeholder="Nhập password"
+                        onChange={handleChangePasswordRegister}
+                    >
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                    </Input>
                 </div>
-                <Button title="Đăng ký" />
+                <Button title="Đăng ký" onClick={handleRegister} />
             </div>
             <div className="form">
                 <h2 className="heading">Đăng nhập</h2>
@@ -71,8 +106,16 @@ export const LoginScreen = () => {
                     >
                         <ion-icon name="mail-outline"></ion-icon>
                     </Input>
+                    <Input
+                        id="passwordLogin"
+                        value={loginValue.password}
+                        placeholder="Nhập password"
+                        onChange={handleChangePasswordLogin}
+                    >
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                    </Input>
                 </div>
-                <Button title="Đăng nhập" />
+                <Button title="Đăng nhập" onClick={handleLogin} />
             </div>
         </Container>
     );
@@ -88,7 +131,7 @@ const Container = styled.div`
         border: 1px solid #fff;
         padding: 20px 10px 30px 10px;
         margin: 20px;
-        min-height: 250px;
+        min-height: 300px;
         display: flex;
         flex-direction: column;
 

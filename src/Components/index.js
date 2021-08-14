@@ -6,3 +6,4 @@ export * from "./Welcome";
 export * from "./Message";
 export * from "./SearchResult";
 export * from "./SearchResultItem";
+export * from "./ProfileModal";
