@@ -6,6 +6,7 @@ export const Input = ({
     id = "",
     value = "",
     placeholder = "",
+    type = "text",
     onFocus = () => {},
     onBlur = () => {},
     onChange = () => {},
@@ -17,7 +18,7 @@ export const Input = ({
             </label>
             <input 
                 value={value} 
-                type="text" 
+                type={type} 
                 id={id} 
                 className="input" 
                 placeholder={placeholder} 

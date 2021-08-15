@@ -24,7 +24,6 @@ export const App = () => {
                 closeOnClick
                 rtl={false}
                 draggable
-                limit={1}
             />
         </Container>
     );
