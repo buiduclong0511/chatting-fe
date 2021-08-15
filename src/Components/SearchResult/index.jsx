@@ -3,6 +3,7 @@ import { SearchResultItem } from "../SearchResultItem";
 
 export const SearchResult = ({
     searchResult = [],
+    isSearching = false,
     onCreateConversation = () => {}
 }) => {
     return (
@@ -12,8 +13,10 @@ export const SearchResult = ({
                 return (
                     <SearchResultItem key={user._id} data={user} onclick={onclick} />
                 );
-            }) : (
-                <p>no user</p>
+            }) : isSearching ? (
+                <p>searching...</p>
+            ) : (
+                <p>User not found</p>
             )}
         </Container>
     );

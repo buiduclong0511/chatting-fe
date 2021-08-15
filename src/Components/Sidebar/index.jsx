@@ -12,6 +12,7 @@ export const Sidebar = ({
     searchResult = [],
     onCreateConversation,
     conversations = [],
+    isSearching,
     onShowSearchResult = () => {},
     onHiddenSearchResult = () => {},
     onToggleShowProfile = () => {},
@@ -37,7 +38,7 @@ export const Sidebar = ({
                     </Input>
                     {isShowSearchResult ? (
                         <div className="searchResult">
-                            <SearchResult searchResult={searchResult} onCreateConversation={onCreateConversation} />
+                            <SearchResult isSearching={isSearching} searchResult={searchResult} onCreateConversation={onCreateConversation} />
                         </div>
                     ) : <></>}
                 </div>

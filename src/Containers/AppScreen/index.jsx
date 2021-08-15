@@ -26,6 +26,7 @@ export const AppScreen = () => {
     const listMessagesRef = useRef(null);
     const [isScrollTop, setIsScrollTop] = useState(false);
     const [isHaveNewMessage, setIsHaveNewMessage] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
 
     // console.log(messages);
 
@@ -100,6 +101,7 @@ export const AppScreen = () => {
             fetchConversations();
             setIsHaveNewMessage(false);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isHaveNewMessage]);
 
     useEffect(() => {
@@ -118,6 +120,7 @@ export const AppScreen = () => {
         if (listMessagesRef.current && !isScrollTop) {
             listMessagesRef.current.scrollTop = listMessagesRef.current.scrollHeight;
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [messages]);
 
     useEffect(() => {
@@ -148,6 +151,7 @@ export const AppScreen = () => {
     // debounce
     useDebounce(() => {
         if (keySearch.trim()) {
+            setIsSearching(true);
             userApi.search(keySearch)
                 .then(res => {
                     setSearchResult(res.data.users);
@@ -155,6 +159,9 @@ export const AppScreen = () => {
                 .catch(err => {
                     console.log(err);
                     setSearchResult([]);
+                })
+                .finally(() => {
+                    setIsSearching(false);
                 });
         }
     }, 800, [keySearch]);
@@ -190,10 +197,12 @@ export const AppScreen = () => {
             receiverId
         })
         .then(res => {
-            console.log(res.data.conversation);
-            fetchConversations();
-            setCurrentChatInfo(res.data.conversation[0]);
-            setFirstTimeAccess(false);
+            // console.log(res.data.conversation);
+            if (res.data.conversation) {
+                fetchConversations();
+                setCurrentChatInfo(res.data.conversation[0]);
+                setFirstTimeAccess(false);
+            }
         });
     };
 
@@ -209,6 +218,8 @@ export const AppScreen = () => {
     const handleSendMessage = async () => {
         try {
             if (messageContent.trim()) {
+                const _messageContent = messageContent;
+                setMessageContent("");
                 const body = {
                     conversationId: currentChatInfo._id,
                     senderId: userInfo._id,
@@ -219,15 +230,14 @@ export const AppScreen = () => {
                 socket.emit("clientSendMessage", {
                     sender: userInfo,
                     receiver,
-                    text: messageContent
+                    text: _messageContent
                 });
                 setMessages([...messages, {
                     sender: {
                         _id: userInfo._id
                     },
-                    text: messageContent
+                    text: _messageContent
                 }]);
-                setMessageContent("");
             }
         } catch (err) {
             console.log(err);
@@ -258,6 +268,7 @@ export const AppScreen = () => {
                     onCreateConversation={handleCreateConversation}
                     conversations={conversations}
                     onClickConversation={handleClickConversation}
+                    isSearching={isSearching}
                 />
             </div>
             <div className="main">

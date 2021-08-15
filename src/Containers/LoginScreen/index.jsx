@@ -91,12 +91,14 @@ export const LoginScreen = () => {
     const handleLogin = () => {
         if (validateLogin(loginValue)) {
             dispatch(login(loginValue));
+            toast.info("Processing...");
         }
     };
 
     const handleRegister = () => {
         if (validateRegister(registerValue)) {
             dispatch(register(registerValue));
+            toast.info("Processing...");
         }
     };
 
