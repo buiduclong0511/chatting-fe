@@ -6,7 +6,7 @@ export * from "./conversation";
 export * from "./message";
 
 const axiosClient = axios.create({
-    baseURL: "http://localhost:3001",
+    baseURL: "https://chatting-be.herokuapp.com",
 
     headers: {
         "Content-Type": "application/json",
