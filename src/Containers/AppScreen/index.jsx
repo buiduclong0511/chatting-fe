@@ -2,13 +2,14 @@ import { useEffect, useRef } from "react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { conversationApi, messageApi, userApi } from "../../Api";
+import { io } from "socket.io-client";
 
+import { conversationApi, messageApi, userApi } from "../../Api";
 import { Message, ProfileModal, Sidebar, Welcome } from "../../Components";
 import { ENTER_KEY } from "../../Constants";
 import { useDebounce } from "../../Hooks";
 import { authSelector, logout } from "../../Redux/slices/auth";
-import { socket } from "../../socket";
+// import { socket } from "../../socket";
 import { sleep } from "../../Util";
 
 export const AppScreen = () => {
@@ -27,6 +28,7 @@ export const AppScreen = () => {
     const [isScrollTop, setIsScrollTop] = useState(false);
     const [isHaveNewMessage, setIsHaveNewMessage] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
+    const socket = useRef(null);
 
     // console.log(messages);
 
@@ -56,13 +58,13 @@ export const AppScreen = () => {
     };
 
     const registerSocket = () => {
-        socket.emit("register", {
+        socket.current.emit("register", {
             userId: userInfo._id
         });
     };
 
     const receiveMessageFromServer = () => {
-        socket.on("serverSendMessage", data => {
+        socket.current.on("serverSendMessage", data => {
             setReceivedMessage({
                 sender: data.sender,
                 text: data.text
@@ -79,7 +81,7 @@ export const AppScreen = () => {
     };
 
     const updateUserOnline = () => {
-        socket.on("updateUserOnline", data => {
+        socket.current.on("updateUserOnline", data => {
             setListUserOnline(data);
         });
     };
@@ -89,6 +91,7 @@ export const AppScreen = () => {
 
     // effect
     useEffect(() => {
+        socket.current = io("https://chatting-socket.herokuapp.com");
         fetchConversations();
         registerSocket();
         receiveMessageFromServer();
@@ -229,7 +232,7 @@ export const AppScreen = () => {
                 }
                 await messageApi.sendMessage(body);
                 const receiver = currentChatInfo.members.find(user => user._id !== userInfo._id);
-                socket.emit("clientSendMessage", {
+                socket.current.emit("clientSendMessage", {
                     sender: userInfo,
                     receiver,
                     text: _messageContent
