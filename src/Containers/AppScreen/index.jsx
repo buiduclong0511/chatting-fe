@@ -25,6 +25,7 @@ export const AppScreen = () => {
     const [listUserOnline, setListUserOnline] = useState([]);
     const listMessagesRef = useRef(null);
     const [isScrollTop, setIsScrollTop] = useState(false);
+    const [isHaveNewMessage, setIsHaveNewMessage] = useState(false);
 
     // console.log(messages);
 
@@ -65,6 +66,7 @@ export const AppScreen = () => {
                 sender: data.sender,
                 text: data.text
             });
+            setIsHaveNewMessage(true);
         });
     };
 
@@ -92,6 +94,13 @@ export const AppScreen = () => {
         updateUserOnline();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    useEffect(() => {
+        if (isHaveNewMessage) {
+            fetchConversations();
+            setIsHaveNewMessage(false);
+        }
+    }, [isHaveNewMessage]);
 
     useEffect(() => {
         fetchMessages();
