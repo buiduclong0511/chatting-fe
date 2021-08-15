@@ -154,7 +154,9 @@ export const AppScreen = () => {
             setIsSearching(true);
             userApi.search(keySearch)
                 .then(res => {
-                    setSearchResult(res.data.users);
+                    console.log(res.data);
+                    const users = res.data.users.filter(user => user._id !== userInfo._id);
+                    setSearchResult(users);
                 })
                 .catch(err => {
                     console.log(err);
