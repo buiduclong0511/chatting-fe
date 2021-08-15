@@ -5,8 +5,10 @@ import styled from "styled-components";
 import { conversationApi, messageApi, userApi } from "../../Api";
 
 import { Message, ProfileModal, Sidebar, Welcome } from "../../Components";
+import { ENTER_KEY } from "../../Constants";
 import { useDebounce } from "../../Hooks";
 import { authSelector, logout } from "../../Redux/slices/auth";
+import { socket } from "../../socket";
 import { sleep } from "../../Util";
 
 export const AppScreen = () => {
@@ -19,6 +21,8 @@ export const AppScreen = () => {
     const [currentChatInfo, setCurrentChatInfo] = useState(null);
     const [messages, setMessages] = useState([]);
     const [messageContent, setMessageContent] = useState("");
+    const [receivedMessage, setReceivedMessage] = useState(null);
+    const [listUserOnline, setListUserOnline] = useState([]);
 
     // console.log(messages);
 
@@ -46,13 +50,44 @@ export const AppScreen = () => {
             console.log(err);
         }
     };
+
+    const registerSocket = () => {
+        socket.emit("register", {
+            userId: userInfo._id
+        });
+    };
+
+    const receiveMessageFromServer = () => {
+        socket.on("serverSendMessage", data => {
+            setReceivedMessage({
+                sender: data.sender,
+                text: data.text
+            });
+        });
+    };
+
+    const concatMessages = () => {
+        const friendId = currentChatInfo.members.find(user => user._id !== userInfo._id)._id;
+        if (receivedMessage.sender._id === friendId) {
+            setMessages([...messages, receivedMessage]);
+        }
+    };
+
+    const updateUserOnline = () => {
+        socket.on("updateUserOnline", data => {
+            setListUserOnline(data);
+        });
+    };
     // effect functions
 
-
+    // console.log(receivedMessage);
 
     // effect
     useEffect(() => {
         fetchConversations();
+        registerSocket();
+        receiveMessageFromServer();
+        updateUserOnline();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -60,6 +95,13 @@ export const AppScreen = () => {
         fetchMessages();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [currentChatInfo]);
+
+    useEffect(() => {
+        if (receivedMessage && currentChatInfo) {
+            concatMessages();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [receivedMessage]);
     // effect
 
 
@@ -133,13 +175,34 @@ export const AppScreen = () => {
                     senderId: userInfo._id,
                     text: messageContent
                 }
-                messageApi.sendMessage(body);
+                await messageApi.sendMessage(body);
+                const receiver = currentChatInfo.members.find(user => user._id !== userInfo._id);
+                socket.emit("clientSendMessage", {
+                    sender: userInfo,
+                    receiver,
+                    text: messageContent
+                });
+                setMessages([...messages, {
+                    sender: {
+                        _id: userInfo._id
+                    },
+                    text: messageContent
+                }]);
+                setMessageContent("");
             }
         } catch (err) {
             console.log(err);
         }
     };
+
+    const handleKeyUp = (event) => {
+        if (event.keyCode === ENTER_KEY) {
+            handleSendMessage();
+        }
+    };
     // handle functions
+
+    // console.log(listUserOnline);
 
     return (
         <Container>
@@ -167,12 +230,12 @@ export const AppScreen = () => {
                             {currentChatInfo.members.find(member => member._id !== userInfo._id).username}
                         </div>
                         <div className="listMessage">
-                            {messages.map(message => {
+                            {messages.map((message, index) => {
                                 // console.log(message);
                                 const isMe = userInfo._id === message.sender._id;
                                 return (
                                     <Message
-                                        key={message._id}
+                                        key={message._id || index}
                                         isMe={isMe}
                                         username={message.sender.username}
                                         message={message.text}
@@ -182,7 +245,7 @@ export const AppScreen = () => {
                         </div>
                         <div className="inputMessage">
                             <div className="input">
-                                <input type="text" value={messageContent} onChange={handleChangeMessageContent} />
+                                <input type="text" value={messageContent} onChange={handleChangeMessageContent} onKeyUp={handleKeyUp} />
                             </div>
                             <div className="btn">
                                 <button className="sendBtn" onClick={handleSendMessage}>
