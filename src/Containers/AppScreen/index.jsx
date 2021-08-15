@@ -109,7 +109,10 @@ export const AppScreen = () => {
             receiverId
         })
         .then(res => {
+            console.log(res.data.conversation);
             fetchConversations();
+            setCurrentChatInfo(res.data.conversation[0]);
+            setFirstTimeAccess(false);
         });
     };
 
