@@ -27,7 +27,7 @@ export const Sidebar = ({
                 </div>
                 <div className="searchBox">
                     <Input
-                        placeholder="Nhập id, username hoặc email"
+                        placeholder="Nhập id"
                         onFocus={onShowSearchResult}
                         onBlur={onHiddenSearchResult}
                         value={keySearch}
