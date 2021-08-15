@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import { toast } from "react-toastify";
 import styled from "styled-components";
 
 import { Button, Input } from "../../Components";
 import { login, register } from "../../Redux/slices/auth";
+import { validateEmail } from "../../Util";
 
 export const LoginScreen = () => {
     const dispatch = useDispatch();
@@ -53,13 +55,49 @@ export const LoginScreen = () => {
             password: event.target.value
         });
     };
+
+    const validateLogin = (value) => {
+        if (value.password && validateEmail(value.email) && value.password.trim()) {
+            return true;
+        }
+        if (!validateEmail(value.email))  {
+            toast.error("Email không hợp lệ!");
+            return false;
+        }
+        if (!value.password || !value.password.trim()) {
+            toast.error("Bạn chưa nhập password!");
+            return false;
+        }
+    };
+
+    const validateRegister = (value) => {
+        if (value.username && value.password && validateEmail(value.email) && value.password.trim() && value.username.trim()) {
+            return true;
+        }
+        if (!validateEmail(value.email))  {
+            toast.error("Email không hợp lệ!");
+            return false;
+        }
+        if (!value.password || !value.password.trim()) {
+            toast.error("Bạn chưa nhập password!");
+            return false;
+        }
+        if (!value.username || !value.username.trim()) {
+            toast.error("Bạn chưa nhập username!");
+            return false;
+        }
+    };
     
     const handleLogin = () => {
-        dispatch(login(loginValue));
+        if (validateLogin(loginValue)) {
+            dispatch(login(loginValue));
+        }
     };
 
     const handleRegister = () => {
-        dispatch(register(registerValue));
+        if (validateRegister(registerValue)) {
+            dispatch(register(registerValue));
+        }
     };
 
     return (
@@ -88,6 +126,7 @@ export const LoginScreen = () => {
                         value={registerValue.password}
                         placeholder="Nhập password"
                         onChange={handleChangePasswordRegister}
+                        type="password"
                     >
                         <ion-icon name="lock-closed-outline"></ion-icon>
                     </Input>
@@ -110,6 +149,7 @@ export const LoginScreen = () => {
                         value={loginValue.password}
                         placeholder="Nhập password"
                         onChange={handleChangePasswordLogin}
+                        type="password"
                     >
                         <ion-icon name="lock-closed-outline"></ion-icon>
                     </Input>

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
@@ -23,6 +23,8 @@ export const AppScreen = () => {
     const [messageContent, setMessageContent] = useState("");
     const [receivedMessage, setReceivedMessage] = useState(null);
     const [listUserOnline, setListUserOnline] = useState([]);
+    const listMessagesRef = useRef(null);
+    const [isScrollTop, setIsScrollTop] = useState(false);
 
     // console.log(messages);
 
@@ -102,6 +104,34 @@ export const AppScreen = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [receivedMessage]);
+
+    useEffect(() => {
+        if (listMessagesRef.current && !isScrollTop) {
+            listMessagesRef.current.scrollTop = listMessagesRef.current.scrollHeight;
+        }
+    }, [messages]);
+
+    useEffect(() => {
+        const toggleIsScrollTop = (event) => {
+            // console.log([event.target.scrollTop, event.target.scrollHeight - event.target.offsetHeight - 50]);
+            if (event.target.scrollTop >= event.target.scrollHeight - event.target.offsetHeight - 50) {
+                setIsScrollTop(false);
+            } else {
+                setIsScrollTop(true);
+            }
+        };
+        if (listMessagesRef.current) {
+            listMessagesRef.current.addEventListener("scroll", toggleIsScrollTop);
+        }
+
+        return () => {
+            if (listMessagesRef.current) {
+                // eslint-disable-next-line react-hooks/exhaustive-deps
+                listMessagesRef.current.removeEventListener("scroll", toggleIsScrollTop);
+            }
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [listMessagesRef.current]);
     // effect
 
 
@@ -229,7 +259,7 @@ export const AppScreen = () => {
                         <div className="header">
                             {currentChatInfo.members.find(member => member._id !== userInfo._id).username}
                         </div>
-                        <div className="listMessage">
+                        <div className="listMessage" ref={listMessagesRef}>
                             {messages.map((message, index) => {
                                 // console.log(message);
                                 const isMe = userInfo._id === message.sender._id;
